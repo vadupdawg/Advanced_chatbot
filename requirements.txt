@@ -6,4 +6,4 @@ chromadb
 tiktoken
 nest_asyncio
 bs4
-testbuffer
+ClickHouse
