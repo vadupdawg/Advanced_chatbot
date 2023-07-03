@@ -4,3 +4,4 @@ gunicorn
 langchain
 chromadb
 tiktoken
+nest_asyncio
