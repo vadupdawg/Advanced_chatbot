@@ -43,7 +43,7 @@ memory.chat_memory.messages.append((memory.ai_prefix, initial_message))
 embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
 
 #create a vectorstore object
-vectorstore = Pinecone.from_existing_index(index_name, embeddings)
+vectorstore = Pinecone.from_existing_index(index_name, embeddings, namespace="docs")
 
 global qa
 qa = ConversationalRetrievalChain.from_llm(
