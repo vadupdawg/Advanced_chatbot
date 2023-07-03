@@ -47,7 +47,6 @@ embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
 
 #create a vectorstore object
 vectorstore = Chroma.from_documents(documents, embeddings)
-print(f"dit zijn de vectorstore: {vectorstore}")
 
 global qa
 qa = ConversationalRetrievalChain.from_llm(
