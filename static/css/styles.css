@@ -11,7 +11,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: white; /* Beige background for body */
+    background-color: transparent; /* Beige background for body */
 }
 
 .chatbox {
@@ -21,7 +21,7 @@ body {
 .chat-container {
     width: 100%;
     max-width: 400px;
-    background-color: transparent;
+    background-color: white;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     overflow: hidden;
