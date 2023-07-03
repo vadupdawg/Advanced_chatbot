@@ -5,3 +5,4 @@ langchain
 chromadb
 tiktoken
 nest_asyncio
+bs4
