@@ -9,9 +9,6 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import Pinecone
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
-from langchain.document_loaders.web_base import WebBaseLoader
-from langchain.text_splitter import CharacterTextSplitter
-
 
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
