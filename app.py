@@ -78,6 +78,11 @@ tools = [
         name='General Knowledge Base',
         func=qa.run,  # Dit zou een RetrievalQA instantie zijn voor algemene vragen
         description='use this tool when answering general questions about GroeimetAi.'
+    ),
+    Tool(
+        name='Pricing Knowledge Base',
+        func=qa.run,  # Dit zou een RetrievalQA instantie zijn voor prijsgerelateerde vragen
+        description='use this tool when answering questions specificly about GroeimetAis pricing schema.'
     )
 ]
 
