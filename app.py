@@ -41,7 +41,7 @@ vectorstore = Pinecone.from_existing_index(index_name, embeddings, namespace="do
 # chat completion llm
 llm = ChatOpenAI(
     openai_api_key=openai_api_key,
-    model_name="gpt-4",
+    model_name="gpt-3.5-turbo-16k",
     temperature=0.0
 )
 
