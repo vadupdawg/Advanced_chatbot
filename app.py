@@ -140,6 +140,8 @@ class CustomOutputParser(AgentOutputParser):
         # Check if agent should finish
         if "Final Answer:" in llm_output:
             return AgentFinish(
+                # Return values is generally always a dictionary with a single `output` key
+                # It is not recommended to try anything else at the moment :)
                 return_values={"output": llm_output.split("Final Answer:")[-1].strip()},
                 log=llm_output,
             )
@@ -150,21 +152,18 @@ class CustomOutputParser(AgentOutputParser):
             raise ValueError(f"Could not parse LLM output: `{llm_output}`")
         action = match.group(1).strip()
         action_input = match.group(2)
-        # Check if the action is one of the allowed tools
-        tool_names = [tool.name for tool in tools]
-        if action not in tool_names:
-            # If it's not, just perform the action without using a tool
-            return AgentAction(tool=None, tool_input=action_input.strip(" ").strip('"'), log=llm_output)
-        # If the action is one of the allowed tools, return the action and action input
+        # Return the action and action input
         return AgentAction(tool=action, tool_input=action_input.strip(" ").strip('"'), log=llm_output)
 
 # Maak een nieuwe instantie van LLMSingleActionAgent met de aangepaste prompt en output parser
 new_agent = LLMSingleActionAgent(
-    llm_chain=LLMChain(llm=llm, prompt=CustomPromptTemplate(
-        template=template,
-        tools=tools,
-        input_variables=["input", "intermediate_steps"]
-    )),
+    llm_chain=LLMChain(llm=llm, prompt = CustomPromptTemplate(
+    template=template,
+    tools=tools,
+    # This omits the `agent_scratchpad`, `tools`, and `tool_names` variables because those are generated dynamically
+    # This includes the `intermediate_steps` variable because that is needed
+    input_variables=["input", "intermediate_steps"]
+)),
     output_parser=CustomOutputParser(),
     stop=["\nObservation:"],
     allowed_tools=tools
