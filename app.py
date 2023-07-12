@@ -87,7 +87,7 @@ tools = [
         description='gebruik deze tool bij het beantwoorden van algemene vragen over GroeimetAi.'
     ),
     Tool(
-        name='Prijzen Kennis Bank',
+        name='Pricing Kennis Bank',
         func=qa.run,  # Dit zou een RetrievalQA instantie zijn voor prijsgerelateerde vragen
         description='gebruik deze tool bij het beantwoorden van vragen specifiek over het prijsschema van GroeimetAi.'
     )
