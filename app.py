@@ -11,7 +11,7 @@ from langchain.vectorstores import Weaviate
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.chains import RetrievalQA
 from langchain.agents import Tool
-from langchain.agents import Tool, AgentExecutor, LLMSingleActionAgent, AgentOutputParser
+from langchain.agents import initialize_agent, Tool, AgentExecutor, LLMSingleActionAgent, AgentOutputParser
 from langchain.prompts import StringPromptTemplate
 from typing import List, Union
 from langchain.schema import AgentAction, AgentFinish, OutputParserException
@@ -79,7 +79,7 @@ tools = [
     Tool(
         name='Product Kennis Bank',
         func=qa.run,  # Dit zou een RetrievalQA instantie zijn voor productgerelateerde vragen
-        description='gebruik deze tool bij het beantwoorden van vragen over GroeimetAi-producten. Zoals de verschillen tussen de chatbots en de verschillende service levels.'
+        description='gebruik deze tool bij het beantwoorden van vragen over GroeimetAi-producten zoals de verschillen tussen de chatbots en de verschillende service levels.'
     ),
     Tool(
         name='Generieke Kennis Bank',
@@ -116,7 +116,6 @@ Vraag: {input}
 {agent_scratchpad}
 """
 
-
 # Definieer de CustomPromptTemplate
 class CustomPromptTemplate(StringPromptTemplate):
     template: str
@@ -151,17 +150,8 @@ class CustomOutputParser(AgentOutputParser):
             raise OutputParserException(f"Kon de LLM output niet parsen: `{llm_output}`")
         actie = match.group(1).strip()
         actie_input = match.group(2)
-        # Zoek de naam van de tool in de beschrijving van de actie
-        tool_name = None
-        for tool in tools:
-            if tool.name in actie:
-                tool_name = tool.name
-                break
-        # Als er geen geldige tool is gevonden, ga dan door zonder een tool te gebruiken
-        if tool_name is None:
-            return AgentAction(tool=None, tool_input=actie_input.strip(" ").strip('"'), log=llm_output)
         # Geef de actie en actie input terug
-        return AgentAction(tool=tool_name, tool_input=actie_input.strip(" ").strip('"'), log=llm_output)
+        return AgentAction(tool=actie, tool_input=actie_input.strip(" ").strip('"'), log=llm_output)
 
 # Maak een nieuwe instantie van LLMSingleActionAgent met de aangepaste prompt en output parser
 new_agent = LLMSingleActionAgent(
