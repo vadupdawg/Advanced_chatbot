@@ -100,9 +100,9 @@ Beantwoord de volgende vragen zo goed mogelijk. Je hebt toegang tot de volgende 
 
 {tools}
 
-Gebruik het volgende formaat:
+Gebruik het volgende format om je antwoorden te structureren:
 
-Question: de input vraag die je moet beantwoorden
+Question: de input vraag die je moet beantwoorden of simpelweg reageren op de gebruiker
 Thought: je moet altijd goed nadenken over wat je moet doen
 Action: Beschrijf de actie die je gaat ondernemen als de actie het gebruik van een tool vereist specificeer dan welke tool je gaat gebruiken en waarom uit [{tool_names}] het kan zijn dat er geen tool gebruikt hoeft te worden ga dan verder met de volgende stap
 Action Input: de input voor de actie
