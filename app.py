@@ -104,7 +104,7 @@ Gebruik het volgende formaat:
 
 Question: de input vraag die je moet beantwoorden
 Thought: je moet altijd goed nadenken over wat je moet doen
-Action: Beschrijf de actie die je gaat ondernemen als de actie het gebruik van een tool vereist specificeer dan welke tool je gaat gebruiken en waarom
+Action: Beschrijf de actie die je gaat ondernemen als de actie het gebruik van een tool vereist specificeer dan welke tool je gaat gebruiken en waarom uit [{tool_names}] het kan zijn dat er geen tool gebruikt hoeft te worden ga dan verder met de volgende stap
 Action Input: de input voor de actie
 Observation: het resultaat van de actie
 ... (deze Thought/Action/Action Input/Observation kan N keer herhaald worden)
