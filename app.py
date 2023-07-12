@@ -3,22 +3,24 @@ from flask import Flask, render_template, request, jsonify
 import logging
 import nest_asyncio
 import sys
-import pinecone
 from langchain.chat_models import ChatOpenAI
 from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.vectorstores import Pinecone
+from langchain.vectorstores import Weaviate
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.chains import RetrievalQA
 from langchain.agents import Tool
 from langchain.agents import initialize_agent
+import weaviate
 
 openai_api_key = os.getenv("OPENAI_API_KEY")
+weaviate_api_key = os.getenv("WEAVIATE_API_KEY")
+weaviate_url = os.getenv("WEAVIATE_URL")
 
-pinecone.init(
-    api_key = os.getenv("PINECONE_API_KEY"),
-    environment = os.getenv("PINECONE_ENV"),
-)
-index_name = "groeimetai-advanced"
+client = weaviate.Client(
+                    url=weaviate_url,
+                    auth_client_secret=weaviate.AuthApiKey(api_key=weaviate_api_key),
+                    additional_headers={"X-OpenAI-Api-Key": os.environ.get('OPENAI_API_KEY')},
+    )
 
 nest_asyncio.apply()
 
@@ -36,7 +38,7 @@ logging.basicConfig(level=logging.WARNING, stream=sys.stdout)
 embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
 
 #create a vectorstore object
-vectorstore = Pinecone.from_existing_index(index_name, embeddings, namespace="docs")
+vectorstore = Weaviate(client, "GroeimetAi", "text", embedding=embeddings)
 
 # chat completion llm
 llm = ChatOpenAI(
@@ -72,17 +74,17 @@ tools = [
     Tool(
         name='Product Knowledge Base',
         func=qa.run,  # Dit zou een RetrievalQA instantie zijn voor productgerelateerde vragen
-        description='use this tool when answering questions about GroeimetAi products.'
+        description='gebruik deze tool bij het beantwoorden van vragen over GroeimetAi-producten.'
     ),
     Tool(
         name='General Knowledge Base',
         func=qa.run,  # Dit zou een RetrievalQA instantie zijn voor algemene vragen
-        description='use this tool when answering general questions about GroeimetAi.'
+        description='gebruik deze tool bij het beantwoorden van algemene vragen over GroeimetAi.'
     ),
     Tool(
         name='Pricing Knowledge Base',
         func=qa.run,  # Dit zou een RetrievalQA instantie zijn voor prijsgerelateerde vragen
-        description='use this tool when answering questions specificly about GroeimetAis pricing schema.'
+        description='gebruik deze tool bij het beantwoorden van vragen specifiek over het prijsschema van GroeimetAi.'
     )
 ]
 
