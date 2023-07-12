@@ -157,8 +157,9 @@ class CustomOutputParser(AgentOutputParser):
             if tool.name in actie:
                 tool_name = tool.name
                 break
+        # Als er geen geldige tool is gevonden, ga dan door zonder een tool te gebruiken
         if tool_name is None:
-            raise OutputParserException(f"Kon geen geldige tool vinden in de actie: `{actie}`")
+            return AgentAction(tool=None, tool_input={}, log=llm_output)
         # Geef de actie en actie input terug
         return AgentAction(tool=tool_name, tool_input=actie_input.strip(" ").strip('"'), log=llm_output)
 
