@@ -8,3 +8,4 @@ nest_asyncio
 bs4
 weaviate-client
 typing
+pydantic
