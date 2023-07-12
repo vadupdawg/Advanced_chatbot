@@ -79,7 +79,7 @@ tools = [
     Tool(
         name='Product Kennis Bank',
         func=qa.run,  # Dit zou een RetrievalQA instantie zijn voor productgerelateerde vragen
-        description='gebruik deze tool bij het beantwoorden van vragen over GroeimetAi-producten zoals de verschillen tussen de chatbots en de verschillende service levels.'
+        description='gebruik deze tool bij het beantwoorden van vragen over GroeimetAi-producten. Zoals de verschillen tussen de chatbots en de verschillende service levels.'
     ),
     Tool(
         name='Generieke Kennis Bank',
@@ -100,7 +100,7 @@ Beantwoord de volgende vragen zo goed mogelijk. Je hebt toegang tot de volgende 
 
 {tools}
 
-Gebruik het volgende format om je antwoorden te structureren:
+Wanneer nodig, kun je deze tools in het volgende format gebruiken:
 
 Question: de input vraag die je moet beantwoorden of simpelweg reageren op de gebruiker
 Thought: Het antwoord of een reactie op de gebruiker vergt altijd goed nadenken
@@ -135,23 +135,28 @@ class CustomPromptTemplate(StringPromptTemplate):
 
 # Definieer de output parser
 class CustomOutputParser(AgentOutputParser):
-
+    
     def parse(self, llm_output: str) -> Union[AgentAction, AgentFinish]:
-        # Controleer of de agent moet stoppen
+        # Check if agent should finish
         if "Final Answer:" in llm_output:
             return AgentFinish(
                 return_values={"output": llm_output.split("Final Answer:")[-1].strip()},
                 log=llm_output,
             )
-        # Parseer de actie en actie input
+        # Parse out the action and action input
         regex = r"Action\s*\d*\s*:(.*?)\nAction\s*\d*\s*Input\s*\d*\s*:[\s]*(.*)"
         match = re.search(regex, llm_output, re.DOTALL)
         if not match:
-            raise OutputParserException(f"Kon de LLM output niet parsen: `{llm_output}`")
-        actie = match.group(1).strip()
-        actie_input = match.group(2)
-        # Geef de actie en actie input terug
-        return AgentAction(tool=actie, tool_input=actie_input.strip(" ").strip('"'), log=llm_output)
+            raise ValueError(f"Could not parse LLM output: `{llm_output}`")
+        action = match.group(1).strip()
+        action_input = match.group(2)
+        # Check if the action is one of the allowed tools
+        tool_names = [tool.name for tool in tools]
+        if action not in tool_names:
+            # If it's not, just perform the action without using a tool
+            return AgentAction(tool=None, tool_input=action_input.strip(" ").strip('"'), log=llm_output)
+        # If the action is one of the allowed tools, return the action and action input
+        return AgentAction(tool=action, tool_input=action_input.strip(" ").strip('"'), log=llm_output)
 
 # Maak een nieuwe instantie van LLMSingleActionAgent met de aangepaste prompt en output parser
 new_agent = LLMSingleActionAgent(
