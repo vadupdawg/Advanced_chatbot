@@ -1,11 +1,11 @@
 flask
 openai
 gunicorn
-langchain
+langchain==0.0.186
 chromadb
 tiktoken
 nest_asyncio
 bs4
 weaviate-client
 typing
-pydantic
+pydantic==1.10.7
