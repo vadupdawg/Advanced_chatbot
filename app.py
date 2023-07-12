@@ -79,7 +79,7 @@ tools = [
     Tool(
         name='Product Kennis Bank',
         func=qa.run,  # Dit zou een RetrievalQA instantie zijn voor productgerelateerde vragen
-        description='gebruik deze tool bij het beantwoorden van vragen over GroeimetAi-producten.'
+        description='gebruik deze tool bij het beantwoorden van vragen over GroeimetAi-producten. Zoals de verschillen tussen de chatbots en de verschillende service levels.'
     ),
     Tool(
         name='Generieke Kennis Bank',
@@ -89,7 +89,7 @@ tools = [
     Tool(
         name='Pricing Kennis Bank',
         func=qa.run,  # Dit zou een RetrievalQA instantie zijn voor prijsgerelateerde vragen
-        description='gebruik deze tool bij het beantwoorden van vragen specifiek over het prijsschema van GroeimetAi.'
+        description='gebruik deze tool bij het beantwoorden van vragen specifiek over het prijsschema van GroeimetAi en waarom de prijzen verschillen tussen de Service levels.'
     )
 ]
 
