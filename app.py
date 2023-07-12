@@ -103,7 +103,7 @@ Beantwoord de volgende vragen zo goed mogelijk. Je hebt toegang tot de volgende 
 Gebruik het volgende format om je antwoorden te structureren:
 
 Question: de input vraag die je moet beantwoorden of simpelweg reageren op de gebruiker
-Thought: je moet altijd goed nadenken over wat je moet doen
+Thought: Het antwoord of een reactie op de gebruiker vergt altijd goed nadenken
 Action: Beschrijf de actie die je gaat ondernemen als de actie het gebruik van een tool vereist specificeer dan welke tool je gaat gebruiken en waarom uit [{tool_names}] het kan zijn dat er geen tool gebruikt hoeft te worden ga dan verder met de volgende stap
 Action Input: de input voor de actie
 Observation: het resultaat van de actie
@@ -159,7 +159,7 @@ class CustomOutputParser(AgentOutputParser):
                 break
         # Als er geen geldige tool is gevonden, ga dan door zonder een tool te gebruiken
         if tool_name is None:
-            return AgentAction(tool=None, tool_input={}, log=llm_output)
+            return AgentAction(tool=None, tool_input=actie_input.strip(" ").strip('"'), log=llm_output)
         # Geef de actie en actie input terug
         return AgentAction(tool=tool_name, tool_input=actie_input.strip(" ").strip('"'), log=llm_output)
 
