@@ -38,7 +38,7 @@ logging.basicConfig(level=logging.WARNING, stream=sys.stdout)
 embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
 
 #create a vectorstore object
-vectorstore = Weaviate(client, "GroeimetAI", "text", embedding=embeddings)
+vectorstore = Weaviate(client, "GroeimetAi", "text", embedding=embeddings)
 
 # chat completion llm
 llm = ChatOpenAI(
