@@ -1,8 +1,6 @@
 import os
-import re
 from flask import Flask, render_template, request, jsonify
 import logging
-from langchain import LLMChain
 import nest_asyncio
 import sys
 from langchain.chat_models import ChatOpenAI
@@ -11,10 +9,7 @@ from langchain.vectorstores import Weaviate
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.chains import RetrievalQA
 from langchain.agents import Tool
-from langchain.agents import initialize_agent, Tool, AgentExecutor, LLMSingleActionAgent, AgentOutputParser
-from langchain.prompts import StringPromptTemplate
-from typing import List, Union
-from langchain.schema import AgentAction, AgentFinish, OutputParserException
+from langchain.agents import initialize_agent
 import weaviate
 
 openai_api_key = os.getenv("OPENAI_API_KEY")
@@ -49,7 +44,7 @@ vectorstore = Weaviate(client, "GroeimetAi", "text", embedding=embeddings)
 llm = ChatOpenAI(
     openai_api_key=openai_api_key,
     model_name="gpt-3.5-turbo-16k",
-    temperature=0.5
+    temperature=0.0
 )
 
 # conversational memory
@@ -60,10 +55,10 @@ conversational_memory = ConversationBufferWindowMemory(
 )
 conversational_memory.save_context(
     {
-        "input": "Jij bent de GroeimetAi Chatbot, jouw naam is GroeimetAi-Advanced en gedraagt je zoals een werknemer. Jij bent gemaakt door GroeimetAi. We bieden vijf service levels: Personal, Advanced, Professional, Startup en Enterprise, elk met hun eigen premium features. Onze chatbots zijn aanpasbaar, meertalig en kunnen worden geïntegreerd met jouw website, WhatsApp en CRM-systemen. Jij bent de Advanced chatbot en hebt ook alle informatie die nodig is om de klant te informeren over de verschillende service levels. En jij zal altijd de taal van de gebruiker spreken, ookal denk je soms in een andere taal, jij zal altijd terugkeren naar de taal van de gebruiker."
+        "input": "Jij bent de GroeimetAi Chatbot, jouw naam is GroeimetAi-Advanced en gedraagt je zoals een werknemer. Jij bent gemaakt door GroeimetAi. We bieden vijf service levels: Personal, Advanced, Professional, Startup en Enterprise, elk met hun eigen premium features. Onze chatbots zijn aanpasbaar, meertalig en kunnen worden geïntegreerd met jouw website, WhatsApp en CRM-systemen. Jij bent de Advanced chatbot en hebt ook alle informatie die nodig is om de klant te informeren over de verschillende service levels. Geef ook altijd antwoord in de taal van de klant ookal denk je zelf in het engels."
     },
     {
-        "output": "Begrepen! Mijn naam is GroeimetAi-Advanced en ben gemaakt door GroeimetAi Ik zal informatie verstrekken over onze chatbot-oplossingen, de verschillende service levels en hoe ze jouw bedrijf kunnen helpen. Voor complexe vragen zal ik voorstellen om een gesprek te starten, maar zal altijd zelf proberen de informatie te vinden die nodig is om de klant te helpen. Laat me weten over welk soort bedrijf je informatie wilt, zodat ik relevante voorbeelden kan geven. En zal mij gedragen als een werknemer van GroeimetAi. Ik zal altijd de taal van de gebruiker spreken, ookal denk ik soms in een andere taal, ik zal altijd terugkeren naar de taal van de gebruiker."
+        "output": "Begrepen! Mijn naam is GroeimetAi-Advanced en ben gemaakt door GroeimetAi Ik zal informatie verstrekken over onze chatbot-oplossingen, de verschillende service levels en hoe ze jouw bedrijf kunnen helpen. Voor complexe vragen zal ik voorstellen om een gesprek te starten, maar zal altijd zelf proberen de informatie te vinden die nodig is om de klant te helpen. Laat me weten over welk soort bedrijf je informatie wilt, zodat ik relevante voorbeelden kan geven. En zal mij gedragen als een werknemer van GroeimetAi. Ik zal echter altijd antwoord geven in de taal van de klant ookal denk ik zelf in het engels."
     }
 )
 
@@ -77,100 +72,36 @@ qa = RetrievalQA.from_chain_type(
 
 tools = [
     Tool(
-        name='Product Kennis Bank',
+        name='Product Knowledge Base',
         func=qa.run,  # Dit zou een RetrievalQA instantie zijn voor productgerelateerde vragen
-        description='gebruik deze tool bij het beantwoorden van vragen over GroeimetAi-producten. Zoals de verschillen tussen de chatbots en de verschillende service levels.'
+        description='gebruik deze tool bij het beantwoorden van vragen over GroeimetAi-producten.'
     ),
     Tool(
-        name='Generieke Kennis Bank',
+        name='General Knowledge Base',
         func=qa.run,  # Dit zou een RetrievalQA instantie zijn voor algemene vragen
         description='gebruik deze tool bij het beantwoorden van algemene vragen over GroeimetAi.'
     ),
     Tool(
-        name='Pricing Kennis Bank',
+        name='Pricing Knowledge Base',
         func=qa.run,  # Dit zou een RetrievalQA instantie zijn voor prijsgerelateerde vragen
-        description='gebruik deze tool bij het beantwoorden van vragen specifiek over het prijsschema van GroeimetAi en waarom de prijzen verschillen tussen de Service levels.'
+        description='gebruik deze tool bij het beantwoorden van vragen specifiek over het prijsschema van GroeimetAi.'
     )
 ]
 
-
-# Definieer de prompt template
-template = """
-Beantwoord de volgende vragen zo goed mogelijk. Je hebt toegang tot de volgende tools:
-
-{tools}
-
-Wanneer nodig, kun je deze tools in het volgende format gebruiken:
-
-Question: de input vraag die je moet beantwoorden of simpelweg reageren op de gebruiker
-Thought: Het antwoord of een reactie op de gebruiker vergt altijd goed nadenken
-Action: Beschrijf de actie die je gaat ondernemen als de actie het gebruik van een tool vereist specificeer dan welke tool je gaat gebruiken en waarom uit [{tool_names}] het kan zijn dat er geen tool gebruikt hoeft te worden ga dan verder met de volgende stap
-Action Input: de input voor de actie
-Observation: het resultaat van de actie
-... (deze Thought/Action/Action Input/Observation kan N keer herhaald worden)
-Thought: Ik weet nu het definitieve antwoord
-Final Answer: het definitieve antwoord op de originele input vraag
-
-Begin nu!
-Vraag: {input}
-{agent_scratchpad}
-"""
-
-# Definieer de CustomPromptTemplate
-class CustomPromptTemplate(StringPromptTemplate):
-    template: str
-    tools: List[Tool]
-    input_variables: List[str]  # Voeg deze regel toe
-    
-    def format(self, **kwargs) -> str:
-        intermediate_steps = kwargs.pop("intermediate_steps")
-        thoughts = ""
-        for action, observation in intermediate_steps:
-            thoughts += action.log
-            thoughts += f"\nObservation: {observation}\nThought: "
-        kwargs["agent_scratchpad"] = thoughts
-        kwargs["tools"] = "\n".join([f"{tool.name}: {tool.description}" for tool in self.tools])
-        kwargs["tool_names"] = ", ".join([tool.name for tool in self.tools])
-        return self.template.format(**kwargs)
-
-# Definieer de output parser
-class CustomOutputParser(AgentOutputParser):
-    
-    def parse(self, llm_output: str) -> Union[AgentAction, AgentFinish]:
-        # Check if agent should finish
-        if "Final Answer:" in llm_output:
-            return AgentFinish(
-                # Return values is generally always a dictionary with a single `output` key
-                # It is not recommended to try anything else at the moment :)
-                return_values={"output": llm_output.split("Final Answer:")[-1].strip()},
-                log=llm_output,
-            )
-        # Parse out the action and action input
-        regex = r"Action\s*\d*\s*:(.*?)\nAction\s*\d*\s*Input\s*\d*\s*:[\s]*(.*)"
-        match = re.search(regex, llm_output, re.DOTALL)
-        if not match:
-            raise ValueError(f"Could not parse LLM output: `{llm_output}`")
-        action = match.group(1).strip()
-        action_input = match.group(2)
-        # Return the action and action input
-        return AgentAction(tool=action, tool_input=action_input.strip(" ").strip('"'), log=llm_output)
-
-# Maak een nieuwe instantie van LLMSingleActionAgent met de aangepaste prompt en output parser
-new_agent = LLMSingleActionAgent(
-    llm_chain=LLMChain(llm=llm, prompt = CustomPromptTemplate(
-    template=template,
+agent = initialize_agent(
+    agent='chat-conversational-react-description',
     tools=tools,
-    # This omits the `agent_scratchpad`, `tools`, and `tool_names` variables because those are generated dynamically
-    # This includes the `intermediate_steps` variable because that is needed
-    input_variables=["input", "intermediate_steps"]
-)),
-    output_parser=CustomOutputParser(),
-    stop=["\nObservation:"],
-    allowed_tools=tools
+    llm=llm,
+    verbose=True,
+    handle_parsing_errors="Check the latest user question and try answering it again in the language of the user.",
+    max_iterations=3,
+    early_stopping_method='generate',
+    memory=conversational_memory,
+    agent_kwargs={ "What language should I answer in?" : "the language of the user"}
 )
 
-# Vervang de oude agent door de nieuwe agent in de AgentExecutor
-agent = AgentExecutor.from_agent_and_tools(agent=new_agent, tools=tools, verbose=True)
+
+
 
 @app.route("/")
 def index():
