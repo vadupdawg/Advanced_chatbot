@@ -97,7 +97,7 @@ agent = initialize_agent(
     max_iterations=3,
     early_stopping_method='generate',
     memory=conversational_memory,
-    agent_kwargs={ "What language should I answer in?" : "the language of the user"}
+    agent_kwargs={ "What language should I answer in?" : "the language of the user", "Wat als ik niet meer informatie heb?" : "Probeer dan een generiek antwoord te geven."}
 )
 
 
