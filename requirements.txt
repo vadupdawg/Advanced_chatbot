@@ -1,7 +1,7 @@
 flask
 openai
 gunicorn
-langchain==0.0.231
+langchain==0.0.230
 chromadb
 tiktoken
 nest_asyncio
