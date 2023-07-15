@@ -72,11 +72,6 @@ qa = RetrievalQA.from_chain_type(
 
 tools = [
     Tool(
-        name='FAQ',
-        func=qa.run,  # Dit zou een RetrievalQA instantie zijn voor productgerelateerde vragen
-        description='gebruik deze tool bij het doorzoeken van vragen die in de FAQ kunnen staan.'
-    ),
-    Tool(
         name='Product Kennis Bank',
         func=qa.run,  # Dit zou een RetrievalQA instantie zijn voor productgerelateerde vragen
         description='gebruik deze tool bij het beantwoorden van vragen over GroeimetAi-producten.'
