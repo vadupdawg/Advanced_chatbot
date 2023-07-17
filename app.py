@@ -1,4 +1,6 @@
 import os
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from flask import Flask, render_template, request, jsonify
 import logging
 import nest_asyncio
@@ -10,6 +12,7 @@ from langchain.memory import ConversationBufferWindowMemory
 from langchain.chains import RetrievalQA
 from langchain.agents import Tool
 from langchain.agents import initialize_agent
+from langchain.callbacks import get_openai_callback
 import weaviate
 
 openai_api_key = os.getenv("OPENAI_API_KEY")
@@ -25,6 +28,12 @@ client = weaviate.Client(
 nest_asyncio.apply()
 
 app = Flask(__name__)
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://",
+)
 
 app.debug = True
 
@@ -100,24 +109,29 @@ agent = initialize_agent(
     agent_kwargs={ "What language should I answer in?" : "the language of the user", "Wat als ik niet meer informatie heb?" : "Probeer dan een generiek antwoord te geven."}
 )
 
-
-
-
 @app.route("/")
 def index():
     return render_template("index.html")
 
 @app.route('/chat', methods=['POST'])
+@limiter.limit("10 per minute")
 def chat():
     data = request.get_json()
     query = data['user_message']
 
-    # Call the agent with the user's query
-    result = agent(query)
+    # Add the context manager here
+    with get_openai_callback() as cb:
+        # Call the agent with the user's query
+        result = agent(query)
+
+    # Print token usage information
+    print(f"Total Tokens: {cb.total_tokens}")
+    print(f"Prompt Tokens: {cb.prompt_tokens}")
+    print(f"Completion Tokens: {cb.completion_tokens}")
+    print(f"Total Cost (USD): ${cb.total_cost}")
 
     # Return the agent's response
     return jsonify(chatbot_response=result["output"])
-
 
 if __name__ == '__main__':
     app.run(port=5001, debug=True)
