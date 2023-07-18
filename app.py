@@ -106,7 +106,7 @@ agent = initialize_agent(
     max_iterations=3,
     early_stopping_method='generate',
     memory=conversational_memory,
-    agent_kwargs={ "What language should I answer in?" : "the language of the user", "Wat als ik niet meer informatie heb?" : "Probeer dan een generiek antwoord te geven."}
+    agent_kwargs={ "Welke taal moet ik aanhouden?" : "over het algemeen nederlands, behalve als anders wordt gecommuniceerd", "Wat als ik niet meer informatie heb?" : "Probeer dan door te vragen, en nooit geen andere professionals aan te raden."}
 )
 
 @app.route("/")
