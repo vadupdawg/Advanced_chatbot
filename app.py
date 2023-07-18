@@ -81,20 +81,10 @@ qa = RetrievalQA.from_chain_type(
 
 tools = [
     Tool(
-        name='Product Kennis Bank',
+        name='GroeimetAi Kennis Bank',
         func=qa.run,  # Dit zou een RetrievalQA instantie zijn voor productgerelateerde vragen
-        description='gebruik deze tool bij het beantwoorden van vragen over GroeimetAi-producten.'
-    ),
-    Tool(
-        name='Generiek Kennis Bank',
-        func=qa.run,  # Dit zou een RetrievalQA instantie zijn voor algemene vragen
-        description='gebruik deze tool bij het beantwoorden van algemene vragen over GroeimetAi.'
-    ),
-    Tool(
-        name='Prijzen Kennis Bank',
-        func=qa.run,  # Dit zou een RetrievalQA instantie zijn voor prijsgerelateerde vragen
-        description='gebruik deze tool bij het beantwoorden van vragen specifiek over het prijsschema van GroeimetAi.'
-    )
+        description='gebruik deze tool bij het beantwoorden van alle vragen over GroeimetAi.'
+        )
 ]
 
 agent = initialize_agent(
