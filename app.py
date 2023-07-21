@@ -18,7 +18,6 @@ from langchain.callbacks import get_openai_callback
 from typing import List, Union
 import re
 from qdrant_client import QdrantClient
-import weaviate
 
 openai_api_key = os.getenv("OPENAI_API_KEY")
 qdrant_api_key = os.getenv("QDRANT_API_KEY")

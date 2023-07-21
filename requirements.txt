@@ -6,7 +6,7 @@ chromadb
 tiktoken
 nest_asyncio
 bs4
-weaviate-client
+qdrant-client
 typing
 pydantic==1.10.7
 Flask-Limiter
