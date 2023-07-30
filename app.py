@@ -177,7 +177,7 @@ agent = LLMSingleActionAgent(
     allowed_tools=tool_names
 )
 
-agent = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools, verbose=True)
+agent = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools, handle_parsing_errors=True, verbose=True)
 
 @app.route("/")
 def index():
