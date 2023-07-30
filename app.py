@@ -46,7 +46,7 @@ embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
 
 # create a vectorstore object
 client = QdrantClient(url=qdrant_url, api_key=qdrant_api_key)
-collection_name = "groeimetai4"
+collection_name = "groeimetai-final2"
 qdrant = Qdrant(client, collection_name, embeddings=embeddings)
 
 # chat completion llm
@@ -83,7 +83,7 @@ tools = [
     Tool(
         name='Similarity search database',
         func=qa.run,  # Dit zou een RetrievalQA instantie zijn voor productgerelateerde vragen
-        description='Gebruik deze tool om de database te doorzoeken naar de informatie waar de gebruiker naar op zoek is.'
+        description='Gebruik deze tool om de database te doorzoeken naar de informatie waar de gebruiker naar op zoek is omtrent alles wat met GroeimetAi te maken heeft.'
     )
 ]
 
